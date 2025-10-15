@@ -1,0 +1,219 @@
+require('dotenv').config();
+
+const express = require('express');
+const mongoose = require('mongoose');
+const cors = require('cors');
+const helmet = require('helmet');
+
+const app = express();
+const PORT = process.env.PORT || 8000;
+
+// Configure security with Helmet and CSP
+app.use(helmet({
+    contentSecurityPolicy: {
+        directives: {
+            defaultSrc: ["'self'"],
+            connectSrc: ["'self'", "http://localhost:*", "https://*.cloudinary.com"],
+            imgSrc: ["'self'", "https://res.cloudinary.com", "data:", "blob:"],
+            mediaSrc: ["'self'", "https://res.cloudinary.com", "blob:"],
+            scriptSrc: ["'self'", "'unsafe-inline'"],
+            styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
+            fontSrc: ["'self'", "https://fonts.gstatic.com", "data:"],
+            formAction: ["'self'"],
+            frameSrc: ["'self'"]
+        }
+    }
+}));
+
+// Configure CORS
+app.use(cors({
+    origin: ['http://localhost:5173', 'http://localhost:3000'],
+    credentials: true,
+    exposedHeaders: ['Content-Type', 'Authorization']
+}));
+
+// Parse JSON and URL-encoded bodies with increased limits for file uploads
+app.use(express.json({ limit: '50mb' }));
+app.use(express.urlencoded({ extended: true, limit: '50mb' }));
+
+// Database Connection
+mongoose.connect(process.env.MONGO_URI)
+    .then(() => {
+        console.log('MongoDB connected successfully');
+        app.listen(PORT, () => {
+
+            console.log(`Server running on port ${PORT}`);
+
+        });// Configure security with Helmet
+
+    })app.use(helmet());
+
+    .catch(err => {
+
+        console.error('MongoDB connection error:', err);// Add Content-Security-Policy header
+
+        process.exit(1);app.use((req, res, next) => {
+
+    });    res.setHeader(
+
+        'Content-Security-Policy',
+
+// Basic route        "default-src 'self';" +
+
+app.get('/', (req, res) => {        "connect-src 'self' http://localhost:* https://*.cloudinary.com;" +
+
+    res.send('Node.js backend is running!');        "img-src 'self' https://res.cloudinary.com data: blob:;" +
+
+});        "media-src 'self' https://res.cloudinary.com blob:;" +
+
+        "script-src 'self' 'unsafe-inline';" +
+
+// Import routes        "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;" +
+
+const authRoutes = require('./routes/authRoutes');        "font-src 'self' https://fonts.gstatic.com data:;" +
+
+const appointmentRoutes = require('./routes/appointmentRoutes');        "form-action 'self';"
+
+const forumRoutes = require('./routes/forumRoutes');    );
+
+const resourceRoutes = require('./routes/resourceRoutes');    next();
+
+const screeningRoutes = require('./routes/screeningRoutes');});
+
+const adminRoutes = require('./routes/adminRoutes');
+
+const gamificationRoutes = require('./routes/gamificationRoutes');// Configure CORS
+
+const emergencyRoutes = require('./routes/emergencyRoutes');app.use(cors({
+
+const chatbotRoutes = require('./routes/chatbotRoutes');    origin: ['http://localhost:5173', 'http://localhost:3000'],
+
+const counsellorRoutes = require('./routes/counsellorRoutes');    credentials: true,
+
+const uploadRoutes = require('./routes/uploadRoutes');    exposedHeaders: ['Content-Type', 'Authorization']
+
+}));
+
+// Register routes
+
+app.use('/api/auth', authRoutes);// Parse request bodies
+
+app.use('/api/appointments', appointmentRoutes);app.use(express.json({ limit: '50mb' }));
+
+app.use('/api/forum', forumRoutes);app.use(express.urlencoded({ extended: true, limit: '50mb' }));
+
+app.use('/api/resources', resourceRoutes);
+
+app.use('/api/screenings', screeningRoutes);// Configure security headers
+
+app.use('/api/admin', adminRoutes);app.use(helmet());
+
+app.use('/api/gamification', gamificationRoutes);
+
+app.use('/api/emergency', emergencyRoutes);// Configure CSP separately with more permissive settings for file uploads
+
+app.use('/api/chatbot', chatbotRoutes);app.use((req, res, next) => {
+
+app.use('/api/counsellors', counsellorRoutes);    res.setHeader(
+
+app.use('/api/upload', uploadRoutes);        'Content-Security-Policy',
+
+        "default-src 'self';" +
+
+// Error handling        "connect-src 'self' http://localhost:* https://*.cloudinary.com;" +
+
+app.use(require('./middleware/errorHandler'));        "img-src 'self' https://res.cloudinary.com data: blob:;" +
+        "media-src 'self' https://res.cloudinary.com blob:;" +
+        "script-src 'self' 'unsafe-inline';" +
+        "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;" +
+        "font-src 'self' https://fonts.gstatic.com data:;" +
+        "form-action 'self';"
+    );
+    next();
+});
+      contentSecurityPolicy: {
+        directives: {
+          defaultSrc: ["'self'"],
+  
+          // Allow React inline styles & external fonts
+          styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
+  
+          // Allow loading fonts from Google Fonts
+          fontSrc: ["'self'", "https://fonts.gstatic.com", "data:"],
+  
+          // Allow images from self, Cloudinary, and base64/data URIs
+          imgSrc: ["'self'", "https://res.cloudinary.com", "data:"],
+  
+          // Allow scripts from self (React, your own JS bundles)
+          scriptSrc: ["'self'"],
+  
+          // Allow API/WebSocket connections (update when deployed)
+          connectSrc: [
+            "'self'",
+            "http://localhost:*",   // Dev API
+            "https://your-api-domain.com", // Replace with your deployed backend
+          ],
+  
+          // Allow media if you’ll have video/audio resources
+          mediaSrc: ["'self'", "https://res.cloudinary.com"],
+  
+          // Frame embedding (if you integrate 3rd-party widgets, update here)
+          frameSrc: ["'self'"],
+        },
+      },
+    })
+  );
+
+
+// Middleware
+app.use(cors({
+    origin: 'http://localhost:5173',
+    credentials: true,
+}));
+app.use(express.json());
+
+// Database Connection
+mongoose.connect(process.env.MONGO_URI)
+    .then(() => {
+        console.log('MongoDB connected successfully');
+
+        app.listen(PORT, () => {
+            console.log(`Server running on port ${PORT}`);
+        });
+
+    })
+    .catch(err => {
+        console.error('MongoDB connection error:', err);
+        process.exit(1);
+    });
+
+// Routes
+app.get('/', (req, res) => {
+    res.send('Node.js backend is running!');
+});
+
+const authRoutes = require('./routes/authRoutes');
+const appointmentRoutes = require('./routes/appointmentRoutes');
+const forumRoutes = require('./routes/forumRoutes');
+const resourceRoutes = require('./routes/resourceRoutes');
+const screeningRoutes = require('./routes/screeningRoutes');
+const adminRoutes = require('./routes/adminRoutes');
+const gamificationRoutes = require('./routes/gamificationRoutes');
+const emergencyRoutes = require('./routes/emergencyRoutes');
+const chatbotRoutes = require('./routes/chatbotRoutes');
+const counsellorRoutes = require('./routes/counsellorRoutes');
+const uploadRoutes = require('./routes/uploadRoutes');
+app.use('/api/auth', authRoutes);
+app.use('/api/appointments', appointmentRoutes);
+app.use('/api/forum', forumRoutes);
+app.use('/api/resources', resourceRoutes);
+app.use('/api/screenings', screeningRoutes);
+app.use('/api/admin', adminRoutes);
+app.use('/api/gamification', gamificationRoutes);
+app.use('/api/emergency', emergencyRoutes);
+app.use('/api/chatbot', chatbotRoutes);
+app.use('/api/counsellors', counsellorRoutes);
+app.use('/api/upload', uploadRoutes);
+
+// Error handling middleware
+app.use(require('./middleware/errorHandler'));
